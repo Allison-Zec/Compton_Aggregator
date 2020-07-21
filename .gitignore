@@ -1,0 +1,5 @@
+.root_history
+graveyard/*
+miniruns/*.dat
+cyclesTemp/*
+run_groups/*
