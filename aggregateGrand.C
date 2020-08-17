@@ -18,7 +18,7 @@
 using namespace std;
 
 TString exptName(Int_t snailNum){
-  if(snailNum < 100) return "prex";
+  if(snailNum < 100 || snailNum == 500) return "prex";
   else return "crex";
 }
 
