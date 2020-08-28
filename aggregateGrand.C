@@ -97,13 +97,16 @@ void makePol0Plots(Int_t snlNum, Int_t *msmt){
     }
     
     setPol0Strs(i);
+    pol0Hists[i]->SetStats(0);
     pol0Hists[i]->Draw("P");
     pol0Texts[i]->Draw("same");
 
     pPol2->cd();
+    pol0Pulls[i]->SetStats(220);
     pol0Pulls[i]->Draw();
     
     pPol3->cd();
+    pol0Pull2Ds[i]->SetStats(0);
     pol0Pull2Ds[i]->Draw();
 
     c->Print(Form("%s/agg_plots_%04i.pdf", outputDir.Data(), (*msmt)++), "pdf");
@@ -132,13 +135,16 @@ void makePol4Plots(Int_t snlNum, Int_t *msmt){
     }
     
     setPol4Strs(i);
+    pol4Hists[i]->SetStats(0);
     pol4Hists[i]->Draw("P");
     pol4Texts[i]->Draw("same");
 
     pPol2->cd();
+    pol4Pulls[i]->SetStats(220);
     pol4Pulls[i]->Draw();
     
     pPol3->cd();
+    pol4Pull2Ds[i]->SetStats(0);
     pol4Pull2Ds[i]->Draw();
 
     c->Print(Form("%s/agg_plots_%04i.pdf", outputDir.Data(), (*msmt)++), "pdf");
@@ -156,6 +162,7 @@ void makeVar0Plots(Int_t snlNum, Int_t *msmt){
     printf("MSMT #%i: %s\n", *msmt, canName.Data());
     TCanvas *c = new TCanvas(canName.Data(), "Acc Var Canvas", 1200, 400);
     c->SetGridx(1); c->SetGridy(1);
+    var0Hists[i]->SetStats(0);
     var0Hists[i]->Draw("P");
     c->Print(Form("%s/agg_plots_%04i.pdf", outputDir.Data(), (*msmt)++), "pdf");
   }
@@ -171,6 +178,7 @@ void makeVar4Plots(Int_t snlNum, Int_t *msmt){
     printf("MSMT #%i: %s\n", *msmt, canName.Data());
     TCanvas *c = new TCanvas(canName.Data(), "Acc Var Canvas", 1200, 400);
     c->SetGridx(1); c->SetGridy(1);
+    var4Hists[i]->SetStats(0);
     var4Hists[i]->Draw("P");
     c->Print(Form("%s/agg_plots_%04i.pdf", outputDir.Data(), (*msmt)++), "pdf");
   }
@@ -186,6 +194,7 @@ void makeVarPlots(Int_t snlNum, Int_t *msmt){
     printf("MSMT #%i: %s\n", *msmt, canName.Data());
     TCanvas *c = new TCanvas(canName.Data(), "Var Canvas", 1200, 400);
     c->SetGridx(1); c->SetGridy(1);
+    varHists[i]->SetStats(0);
     varHists[i]->Draw("P");
     c->Print(Form("%s/agg_plots_%04i.pdf", outputDir.Data(), (*msmt)++), "pdf");
   }
@@ -242,7 +251,7 @@ void aggregateGrand(Int_t snlNum){
   }
 
   Int_t msmt = 0;
-  gStyle->SetOptStat(0);
+  //gStyle->SetOptStat(0);
   makePol0Plots(snlNum, &msmt);
   makeVar0Plots(snlNum, &msmt);
   makePol4Plots(snlNum, &msmt);
