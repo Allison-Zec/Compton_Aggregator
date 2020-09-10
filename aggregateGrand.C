@@ -243,6 +243,8 @@ void aggregateGrand(Int_t snlNum){
     for(Int_t j = 0; j < 2*nVars; j+=2){
       varHists[j]->SetBinContent(nBin, vars[(Int_t)j/2].mean);
       varHists[j]->SetBinError(nBin, vars[(Int_t)j/2].meanErr);
+      varHists[j+1]->SetBinContent(nBin, vars[(Int_t)j/2].rms);
+      varHists[j+1]->SetBinError(nBin, vars[(Int_t)j/2].rmsErr);
       if(nBin % 3 == 1){
         varHists[j]->GetXaxis()->SetBinLabel(nBin, Form("%i.%i", runNum, cycleNum));
       }
@@ -254,8 +256,8 @@ void aggregateGrand(Int_t snlNum){
   //gStyle->SetOptStat(0);
   makePol0Plots(snlNum, &msmt);
   makeVar0Plots(snlNum, &msmt);
-  makePol4Plots(snlNum, &msmt);
-  makeVar4Plots(snlNum, &msmt);
+  //makePol4Plots(snlNum, &msmt);
+  //makeVar4Plots(snlNum, &msmt);
   makeVarPlots(snlNum, &msmt);
 
   TString outputDir = Form("%s/snails/snail%i", getenv("COMPMON_WEB"), snlNum);
