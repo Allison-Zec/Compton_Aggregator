@@ -70,6 +70,7 @@ fi
 root -l -b -q aggregateGrand.C\(${snail_num}\)
 root -l -b -q $COMPMON_GRAND/grandMacros/snailwisePlots.C\($run_code\)
 root -l -b -q $COMPMON_GRAND/grandMacros/runwisePlots.C\($run_code\)
+root -l -b -q $COMPMON_GRAND/grandMacros/cyclewisePlots.C\($run_code\)
 
 date=`date +"%Y-%m-%d"`
 time=`date +"%T"`

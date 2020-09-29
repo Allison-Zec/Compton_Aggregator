@@ -34,6 +34,7 @@ void initBranches(TTree* cyc){
   cyc->SetBranchAddress("lastOffEndMPS", &lOffMPS2);
   cyc->SetBranchAddress("cycleTime", &cycleTime);
   cyc->SetBranchAddress("AnalyzingPower", &anPow);
+  cyc->SetBranchAddress("CycleCut", &cycCut);
 
   for(Int_t i = 0; i < nPols; i++){PolVar pol; pols0.push_back(pol);}
   for(Int_t i = 0; i < nAccVars; i++){DataVar data; vars0.push_back(data);}
@@ -56,7 +57,7 @@ void setPol0Strs(Int_t i){
 
   pol0Texts[i]->AddText(Form("--------Fit Results--------"));
   pol0Texts[i]->AddText(Form("Mean +/- Err: %.3f +/- %.3f", par, parErr));
-  if(pol0Pcts[i])
+  if(pol0Pcts[(Int_t)i/2])
     pol0Texts[i]->AddText(Form("Rel. Error: %.3f%%", 100.0*parErr/par));
   pol0Texts[i]->AddText(Form("Chi^2 / ndf: %f / %d", chi2, ndf));
   pol0Texts[i]->SetBorderSize(1); pol0Texts[i]->SetFillColor(0);
@@ -70,7 +71,7 @@ void setPol4Strs(Int_t i){
 
   pol4Texts[i]->AddText(Form("--------Fit Results--------"));
   pol4Texts[i]->AddText(Form("Mean +/- Err: %.3f +/- %.3f", par, parErr));
-  if(pol4Pcts[i])
+  if(pol4Pcts[(Int_t)i/2])
     pol4Texts[i]->AddText(Form("Rel. Error: %.3f%%", 100.0*parErr/par));
   pol4Texts[i]->AddText(Form("Chi^2 / ndf: %f / %d", chi2, ndf));
   pol4Texts[i]->SetBorderSize(1); pol4Texts[i]->SetFillColor(0);
@@ -79,12 +80,14 @@ void setPol4Strs(Int_t i){
 void makePol0Plots(Int_t snlNum, Int_t *msmt){
   TString snailName = Form("snail%i", snlNum);
   TString outputDir(Form("%s/snails/%s", getenv("COMPMON_WEB"), snailName.Data()));
-  for(Int_t i = 0; i < nPols; i++){
-    TCanvas *c = new TCanvas(Form("cPol_%s", polNames0[i].Data()), "Pol Canvas", 1200, 600);
-    TPad *pPol1 = new TPad(Form("pPol1_%s", polNames0[i].Data()), "Pol Avg", 0.0, 0.3, 0.7, 1.0);
+  for(Int_t i = 0; i < 2*nPols; i++){
+    TString cutAdd("");
+    if(i % 2 == 1){cutAdd = "NoCut";}
+    TCanvas *c = new TCanvas(Form("cPol%s_%s", cutAdd.Data(), polNames0[(Int_t)i/2].Data()), "Pol Canvas", 1200, 600);
+    TPad *pPol1 = new TPad(Form("pPol1%s_%s", cutAdd.Data(), polNames0[(Int_t)i/2].Data()), "Pol Avg", 0.0, 0.3, 0.7, 1.0);
     pPol1->SetGridx(1); pPol1->SetGridy(1);
-    TPad *pPol2 = new TPad(Form("pPol2_%s", polNames0[i].Data()), "Pol Pull Plot", 0.7, 0.0, 1.0, 1.0);
-    TPad *pPol3 = new TPad(Form("pPol3_%s", polNames0[i].Data()), "Pol Pull Graph", 0.0, 0.0, 0.7, 0.3);
+    TPad *pPol2 = new TPad(Form("pPol2%s_%s", cutAdd.Data(), polNames0[(Int_t)i/2].Data()), "Pol Pull Plot", 0.7, 0.0, 1.0, 1.0);
+    TPad *pPol3 = new TPad(Form("pPol3%s_%s", cutAdd.Data(), polNames0[(Int_t)i/2].Data()), "Pol Pull Graph", 0.0, 0.0, 0.7, 0.3);
     pPol3->SetGridx(1); pPol3->SetGridy(1);
     pPol1->Draw(); pPol2->Draw(); pPol3->Draw();
 
@@ -117,12 +120,14 @@ void makePol0Plots(Int_t snlNum, Int_t *msmt){
 void makePol4Plots(Int_t snlNum, Int_t *msmt){
   TString snailName = Form("snail%i", snlNum);
   TString outputDir(Form("%s/snails/%s", getenv("COMPMON_WEB"), snailName.Data()));
-  for(Int_t i = 0; i < nPols; i++){
-    TCanvas *c = new TCanvas(Form("cPol_%s", polNames4[i].Data()), "Pol Canvas", 1200, 600);
-    TPad *pPol1 = new TPad(Form("pPol1_%s", polNames4[i].Data()), "Pol Avg", 0.0, 0.3, 0.7, 1.0);
+  for(Int_t i = 0; i < 2*nPols; i++){
+    TString cutAdd("");
+    if(i % 2 == 0){cutAdd = "NoCut";}
+    TCanvas *c = new TCanvas(Form("cPol%s_%s", cutAdd.Data(), polNames4[(Int_t)i/2].Data()), "Pol Canvas", 1200, 600);
+    TPad *pPol1 = new TPad(Form("pPol1%s_%s", cutAdd.Data(), polNames4[(Int_t)i/2].Data()), "Pol Avg", 0.0, 0.3, 0.7, 1.0);
     pPol1->SetGridx(1); pPol1->SetGridy(1);
-    TPad *pPol2 = new TPad(Form("pPol2_%s", polNames4[i].Data()), "Pol Pull Plot", 0.7, 0.0, 1.0, 1.0);
-    TPad *pPol3 = new TPad(Form("pPol3_%s", polNames4[i].Data()), "Pol Pull Graph", 0.0, 0.0, 0.7, 0.3);
+    TPad *pPol2 = new TPad(Form("pPol2%s_%s", cutAdd.Data(), polNames4[(Int_t)i/2].Data()), "Pol Pull Plot", 0.7, 0.0, 1.0, 1.0);
+    TPad *pPol3 = new TPad(Form("pPol3%s_%s", cutAdd.Data(), polNames4[(Int_t)i/2].Data()), "Pol Pull Graph", 0.0, 0.0, 0.7, 0.3);
     pPol3->SetGridx(1); pPol3->SetGridy(1);
     pPol1->Draw(); pPol2->Draw(); pPol3->Draw();
 
@@ -205,23 +210,34 @@ void aggregateGrand(Int_t snlNum){
   TTree *cyc = (TTree *)grand->Get("cyc");
 
   nCycles = (Int_t)cyc->GetEntries(Form("snailNum==%i", snlNum));
+  nCyclesCut = (Int_t)cyc->GetEntries(Form("snailNum==%i && CycleCut==0", snlNum));
   printf("Number of cycles: %i\n", nCycles);
   initHists(snlNum);
   initFits();
   initBranches(cyc);
   
-  Int_t nBin = 1;
+  Int_t nBin = 1; Int_t nBinCut = 1;
   for(Int_t i = 0; i < cyc->GetEntries(); i++){
     cyc->GetEntry(i);
     if(snailNum != snlNum) continue;
-    for(Int_t j = 0; j < nPols; j++){
-      pol0Hists[j]->SetBinContent(nBin, pols0[j].mean*pol0Mults[j]);
-      pol0Hists[j]->SetBinError(nBin, pols0[j].meanErr*pol0Mults[j]);
-      pol4Hists[j]->SetBinContent(nBin, pols4[j].mean*pol4Mults[j]);
-      pol4Hists[j]->SetBinError(nBin, pols4[j].meanErr*pol4Mults[j]);
+    for(Int_t j = 0; j < 2*nPols; j+=2){
+      pol0Hists[j+1]->SetBinContent(nBin, pols0[(Int_t)(j/2)].mean*pol0Mults[(Int_t)(j/2)]);
+      pol0Hists[j+1]->SetBinError(nBin, pols0[(Int_t)(j/2)].meanErr*pol0Mults[(Int_t)(j/2)]);
+      pol4Hists[j+1]->SetBinContent(nBin, pols4[(Int_t)(j/2)].mean*pol4Mults[(Int_t)(j/2)]);
+      pol4Hists[j+1]->SetBinError(nBin, pols4[(Int_t)(j/2)].meanErr*pol4Mults[(Int_t)(j/2)]);
       if(nBin % 3 == 1){
-        pol0Hists[j]->GetXaxis()->SetBinLabel(nBin, Form("%i.%i", runNum, cycleNum));
-        pol4Hists[j]->GetXaxis()->SetBinLabel(nBin, Form("%i.%i", runNum, cycleNum));
+        pol0Hists[j+1]->GetXaxis()->SetBinLabel(nBin, Form("%i.%i", runNum, cycleNum));
+        pol4Hists[j+1]->GetXaxis()->SetBinLabel(nBin, Form("%i.%i", runNum, cycleNum));
+      }
+      if(cycCut == 0){
+        pol0Hists[j]->SetBinContent(nBinCut, pols0[(Int_t)(j/2)].mean*pol0Mults[(Int_t)(j/2)]);
+        pol0Hists[j]->SetBinError(nBinCut, pols0[(Int_t)(j/2)].meanErr*pol0Mults[(Int_t)(j/2)]);
+        pol4Hists[j]->SetBinContent(nBinCut, pols4[(Int_t)(j/2)].mean*pol4Mults[(Int_t)(j/2)]);
+        pol4Hists[j]->SetBinError(nBinCut, pols4[(Int_t)(j/2)].meanErr*pol4Mults[(Int_t)(j/2)]);
+      }
+      if(nBinCut % 3 && cycCut == 0){
+        pol0Hists[j]->GetXaxis()->SetBinLabel(nBinCut, Form("%i.%i", runNum, cycleNum));
+        pol4Hists[j]->GetXaxis()->SetBinLabel(nBinCut, Form("%i.%i", runNum, cycleNum));
       }
     }
     for(Int_t j = 0; j < 2*nAccVars; j+=2){
@@ -250,6 +266,7 @@ void aggregateGrand(Int_t snlNum){
       }
     }
     nBin++;
+    if(cycCut == 0){nBinCut++;}
   }
 
   Int_t msmt = 0;

@@ -20,6 +20,7 @@
 
 Int_t snailNum, runNum, cycleNum;
 Int_t fOffMPS1, fOffMPS2, onMPS1, onMPS2, lOffMPS1, lOffMPS2;
+Int_t cycCut;
 Float_t cycleTime, anPow;
 
 const Int_t nPols = 6;
@@ -63,12 +64,18 @@ vector<TH1F *> varHists;
 vector<Bool_t> isPol;
 
 Int_t nCycles;
+Int_t nCyclesCut;
 
 void initHists(Int_t snlNum){
-  for(Int_t i = 0; i < nPols; i++){
-    TH1F *h = new TH1F(Form("h_%s", polNames0[i].Data()), Form("Snail %i: %s vs Cycle", snlNum, polNames0[i].Data()), nCycles, 0, nCycles);
-    TH1F *hPull = new TH1F(Form("hPull_%s", polNames0[i].Data()), Form("%s Pull Plot", polNames0[i].Data()), 40, -8, 8);
-    TH1F *hPull2D = new TH1F(Form("hPull2D_%s", polNames0[i].Data()), "", nCycles, 0, nCycles);
+  for(Int_t i = 0; i < 2*nPols; i++){
+    TString cutAdd("");
+    if(i % 2 == 1) cutAdd = "NoCut";
+    TH1F *h; TH1F *hPull2D;
+    if(i % 2 == 0){h = new TH1F(Form("h%s_%s", cutAdd.Data(), polNames0[(Int_t)(i/2)].Data()), Form("Snail %i: %s vs Cycle", snlNum, polNames0[(Int_t)(i/2)].Data()), nCyclesCut, 0, nCyclesCut);}
+    else{h = new TH1F(Form("h%s_%s", cutAdd.Data(), polNames0[(Int_t)(i/2)].Data()), Form("Snail %i: %s vs Cycle (No CycleCut)", snlNum, polNames0[(Int_t)(i/2)].Data()), nCycles, 0, nCycles);}
+    TH1F *hPull = new TH1F(Form("hPull%s_%s", cutAdd.Data(), polNames0[(Int_t)(i/2)].Data()), Form("%s Pull Plot", polNames0[(Int_t)(i/2)].Data()), 40, -8, 8);
+    if(i % 2 == 0){hPull2D = new TH1F(Form("hPull2D%s_%s", cutAdd.Data(), polNames0[(Int_t)(i/2)].Data()), "", nCyclesCut, 0, nCyclesCut);}
+    else{hPull2D = new TH1F(Form("hPull2D%s_%s", cutAdd.Data(), polNames0[(Int_t)(i/2)].Data()), "", nCycles, 0, nCycles);}
     hPull2D->SetLineColor(kGreen); hPull2D->SetFillColor(kGreen);
     pol0Hists.push_back(h); pol0Pulls.push_back(hPull); pol0Pull2Ds.push_back(hPull2D);
   }
@@ -79,10 +86,15 @@ void initHists(Int_t snlNum){
     TH1F *h = new TH1F(Form("h%s_%s", hNameAdd.Data(), varNames0[(Int_t)i/2].Data()), hName.Data(), nCycles, 0, nCycles);
     var0Hists.push_back(h);
   }
-  for(Int_t i = 0; i < nPols; i++){
-    TH1F *h = new TH1F(Form("h_%s", polNames4[i].Data()), Form("Snail %i: %s vs Cycle", snlNum, polNames4[i].Data()), nCycles, 0, nCycles);
-    TH1F *hPull = new TH1F(Form("hPull_%s", polNames4[i].Data()), Form("%s Pull Plot", polNames4[i].Data()), 40, -8, 8);
-    TH1F *hPull2D = new TH1F(Form("hPull2D_%s", polNames4[i].Data()), "", nCycles, 0, nCycles);
+  for(Int_t i = 0; i < 2*nPols; i++){
+    TString cutAdd("");
+    if(i % 2 == 1) cutAdd = "NoCut";
+    TH1F *h; TH1F *hPull2D;
+    if(i % 2 == 0){h = new TH1F(Form("h%s_%s", cutAdd.Data(), polNames4[(Int_t)(i/2)].Data()), Form("Snail %i: %s vs Cycle", snlNum, polNames4[(Int_t)(i/2)].Data()), nCyclesCut, 0, nCyclesCut);}
+    else{h = new TH1F(Form("h%s_%s", cutAdd.Data(), polNames4[(Int_t)(i/2)].Data()), Form("Snail %i: %s vs Cycle (No CycleCut)", snlNum, polNames4[(Int_t)(i/2)].Data()), nCycles, 0, nCycles);}
+    TH1F *hPull = new TH1F(Form("hPull%s_%s", cutAdd.Data(), polNames4[(Int_t)(i/2)].Data()), Form("%s Pull Plot", polNames4[(Int_t)(i/2)].Data()), 40, -8, 8);
+    if(i % 2 == 0){hPull2D = new TH1F(Form("hPull2D%s_%s", cutAdd.Data(), polNames4[(Int_t)(i/2)].Data()), "", nCyclesCut, 0, nCyclesCut);}
+    else{hPull2D = new TH1F(Form("hPull2D%s_%s", cutAdd.Data(), polNames4[(Int_t)(i/2)].Data()), "", nCycles, 0, nCycles);}
     hPull2D->SetLineColor(kGreen); hPull2D->SetFillColor(kGreen);
     pol4Hists.push_back(h); pol4Pulls.push_back(hPull); pol4Pull2Ds.push_back(hPull2D);
   }
@@ -103,9 +115,9 @@ void initHists(Int_t snlNum){
 }
 
 void initFits(){
-  for(Int_t i = 0; i < nPols; i++){
-    TString fName0 = Form("f_%s", polNames0[i].Data());
-    TString fName4 = Form("f_%s", polNames4[i].Data());
+  for(Int_t i = 0; i < 2*nPols; i++){
+    TString fName0 = Form("f_%s", polNames0[(Int_t)i/2].Data());
+    TString fName4 = Form("f_%s", polNames4[(Int_t)i/2].Data());
     TF1 *f0 = new TF1(fName0.Data(), "pol0");
     TF1 *f4 = new TF1(fName4.Data(), "pol0");
     fits0.push_back(f0);
